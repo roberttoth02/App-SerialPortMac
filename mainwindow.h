@@ -45,7 +45,7 @@ signals:
 
 private:
     // background data reader thread
-    void read_thread(int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName);
+    void read_thread(const std::string &comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName);
 
     // raw config file IO
     void load_config(const std::string &filename);

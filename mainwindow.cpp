@@ -136,7 +136,7 @@ void MainWindow::load_config(const std::string &filename) {
 
 	// get config values
 	try {
-		ui->comPort->setValue(pt.get<int>("coresettings.comport",1));
+        ui->comPort->setText(pt.get<std::string>("coresettings.comport","/dev/ttyS0").c_str());
 		ui->baudRate->setValue(pt.get<int>("coresettings.baudrate",57600));
 		ui->samplingRate->setValue(pt.get<int>("streamsettings.samplingrate",0));
 		ui->chunkSize->setValue(pt.get<int>("streamsettings.chunksize",32));
@@ -159,7 +159,7 @@ void MainWindow::save_config(const std::string &filename) {
 
 	// transfer UI content into property tree
 	try {
-		pt.put("coresettings.comport",ui->comPort->value());
+        pt.put("coresettings.comport",ui->comPort->text().toStdString());
 		pt.put("coresettings.baudrate",ui->baudRate->value());
 		pt.put("streamsettings.samplingrate",ui->samplingRate->value());
 		pt.put("streamsettings.chunksize",ui->chunkSize->value());
@@ -205,7 +205,7 @@ void MainWindow::on_link()
 
         try {
             // get the UI parameters...
-            int comPort = ui->comPort->value();
+            std::string  comPort = ui->comPort->text().toStdString();
             int baudRate = ui->baudRate->value();
             int samplingRate = ui->samplingRate->value();
             int chunkSize = ui->chunkSize->value();
@@ -234,8 +234,9 @@ void MainWindow::on_link()
 
 
 // background data reader thread
-void MainWindow::read_thread(int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName) {
-//    void MainWindow::read_thread(HANDLE hPort, int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName) {
+void MainWindow::read_thread(const std::string &comPort, int baudRate,
+                             int samplingRate, int chunkSize, const std::string &streamName)
+{
     try {
 
 		// create streaminfo
@@ -248,15 +249,14 @@ void MainWindow::read_thread(int comPort, int baudRate, int samplingRate, int ch
 			.append_child_value("unit","integer");
 		info.desc().append_child("acquisition")
 			.append_child("hardware")
-            .append_child_value("com_port", std::to_string(comPort))
+            .append_child_value("com_port", comPort)
             .append_child_value("baud_rate",std::to_string(baudRate));
 
 		// make a new outlet
 		lsl::stream_outlet outlet(info,chunkSize);
 
         // enter transmission loop
-        std::string portname = "/dev/ttyS" + std::to_string(comPort);
-        Serial receiver(portname.c_str(), (unsigned int) baudRate, &outlet);
+        Serial receiver(comPort.c_str(), (unsigned int) baudRate, &outlet);
 
 		while (!shutdown_) {
 
@@ -273,7 +273,7 @@ void MainWindow::read_thread(int comPort, int baudRate, int samplingRate, int ch
 	}
 	catch(std::exception &e) {
 		// any other error
-        QMessageBox::critical(this,"Error",(std::string("Error during : ")+=e.what()).c_str(),QMessageBox::Ok);
+        QMessageBox::critical(this,"Error",(std::string("Error during operation : ")+=e.what()).c_str(),QMessageBox::Ok);
         // indicate that we are now unlinked
         emit error();
 	}

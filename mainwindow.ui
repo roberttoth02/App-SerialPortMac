@@ -37,18 +37,12 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QSpinBox" name="comPort">
+          <widget class="QLineEdit" name="comPort">
            <property name="toolTip">
-            <string>This is the COM port number; these are usually consecutively assigned to devices.</string>
+            <string>Linux Device. e.g. /dev/ttyS0</string>
            </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>30</number>
-           </property>
-           <property name="value">
-            <number>0</number>
+           <property name="text">
+            <string>/dev/ttyS0</string>
            </property>
           </widget>
          </item>
