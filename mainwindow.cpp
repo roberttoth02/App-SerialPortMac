@@ -70,11 +70,11 @@ public:
         m_io.post(boost::bind(&Serial::do_close, this, boost::system::error_code()));
     }
 
-    Serial(const char *dev_name, unsigned int baud, lsl::stream_outlet *outlet) : m_io(),
+    Serial(const char *dev_name, unsigned int baud, unsigned int dataBits,  lsl::stream_outlet *outlet) : m_io(),
         m_port(m_io, dev_name), m_outlet(outlet)
     {
 //        m_port.set_option( boost::asio::serial_port_base::parity() );	// default none
-//        m_port.set_option( boost::asio::serial_port_base::character_size( 8 ) );
+        m_port.set_option( boost::asio::serial_port_base::character_size( dataBits ) );
 //        m_port.set_option( boost::asio::serial_port_base::stop_bits() );	// default one
         m_port.set_option( boost::asio::serial_port_base::baud_rate( baud ) );
 
@@ -219,7 +219,8 @@ void MainWindow::on_link()
 
             // start reading
             shutdown_ = false;
-            reader_thread_ = std::make_unique<std::thread>(&MainWindow::read_thread, this, comPort, baudRate, samplingRate, chunkSize, streamName);
+            reader_thread_ = std::make_unique<std::thread>(&MainWindow::read_thread, this, comPort,
+                                                           baudRate, dataBits, samplingRate, chunkSize, streamName);
 
         }
         catch(std::exception &e) {
@@ -234,7 +235,7 @@ void MainWindow::on_link()
 
 
 // background data reader thread
-void MainWindow::read_thread(const std::string &comPort, int baudRate,
+void MainWindow::read_thread(const std::string &comPort, unsigned int baudRate, unsigned int dataBits,
                              int samplingRate, int chunkSize, const std::string &streamName)
 {
     try {
@@ -256,7 +257,7 @@ void MainWindow::read_thread(const std::string &comPort, int baudRate,
 		lsl::stream_outlet outlet(info,chunkSize);
 
         // enter transmission loop
-        Serial receiver(comPort.c_str(), (unsigned int) baudRate, &outlet);
+        Serial receiver(comPort.c_str(), baudRate, dataBits, &outlet);
 
 		while (!shutdown_) {
 
