@@ -27,11 +27,11 @@ find_package(LSL REQUIRED
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets)
 
 ## Boost
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS thread)
 
 ## Threads
 find_package(Threads REQUIRED)
@@ -53,6 +53,7 @@ target_link_libraries(${PROJECT_NAME}
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Widgets
     Boost::headers
+    Boost::thread
     Threads::Threads
     LSL::lsl
 )
@@ -65,15 +66,15 @@ installLSLAuxFiles(${PROJECT_NAME}
 )
 
 get_target_property(QT_QMAKE_EXECUTABLE Qt::qmake IMPORTED_LOCATION)
-get_filename_component(QT_WINDEPLOYQT_EXECUTABLE ${QT_QMAKE_EXECUTABLE} PATH)
+#get_filename_component(QT_WINDEPLOYQT_EXECUTABLE ${QT_QMAKE_EXECUTABLE} PATH)
 #set(QT_WINDEPLOYQT_EXECUTABLE "${QT_WINDEPLOYQT_EXECUTABLE}/windeployqt.exe")
 
-add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${QT_WINDEPLOYQT_EXECUTABLE}
-    --no-translations --no-system-d3d-compiler
-    --qmldir ${CMAKE_CURRENT_SOURCE_DIR}
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+#add_custom_command(
+#    TARGET ${PROJECT_NAME} POST_BUILD
+#    COMMAND ${QT_WINDEPLOYQT_EXECUTABLE}
+#    --no-translations --no-system-d3d-compiler
+#    --qmldir ${CMAKE_CURRENT_SOURCE_DIR}
+#    $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different

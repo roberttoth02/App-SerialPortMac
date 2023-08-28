@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>415</width>
-    <height>333</height>
+    <width>474</width>
+    <height>389</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,10 +42,13 @@
             <string>This is the COM port number; these are usually consecutively assigned to devices.</string>
            </property>
            <property name="minimum">
-            <number>1</number>
+            <number>0</number>
            </property>
            <property name="maximum">
-            <number>256</number>
+            <number>30</number>
+           </property>
+           <property name="value">
+            <number>0</number>
            </property>
           </widget>
          </item>
@@ -294,8 +297,14 @@
          </item>
          <item row="0" column="1">
           <widget class="QSpinBox" name="readIntervalTimeout">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="toolTip">
             <string>Maximum time that may pass between two bytes </string>
+           </property>
+           <property name="readOnly">
+            <bool>false</bool>
            </property>
            <property name="maximum">
             <number>10000000</number>
@@ -314,6 +323,9 @@
          </item>
          <item row="1" column="1">
           <widget class="QSpinBox" name="readTotalTimeoutConstant">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="toolTip">
             <string>Constant term in length-dependent timeout.</string>
            </property>
@@ -334,6 +346,9 @@
          </item>
          <item row="2" column="1">
           <widget class="QSpinBox" name="readTotalTimeoutMultiplier">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="toolTip">
             <string>Linear term in length-dependent timeout.</string>
            </property>
@@ -394,8 +409,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>415</width>
-     <height>18</height>
+     <width>474</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

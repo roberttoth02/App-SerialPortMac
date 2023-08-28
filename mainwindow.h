@@ -39,9 +39,13 @@ private slots:
 
     // close event (potentially disabled)
     void closeEvent(QCloseEvent *ev);
+
+signals:
+    void error();
+
 private:
     // background data reader thread
-    void read_thread(int hPort, int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName);
+    void read_thread(int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName);
 
     // raw config file IO
     void load_config(const std::string &filename);

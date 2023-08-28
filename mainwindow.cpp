@@ -4,6 +4,89 @@
 #include <boost/property_tree/xml_parser.hpp>
 
 
+// serial port
+#include <boost/asio.hpp>
+#include <boost/asio/serial_port.hpp>
+#include <boost/thread.hpp>
+
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
+class Serial {
+
+    char read_msg_[512];
+
+    boost::asio::io_service m_io;
+    boost::asio::serial_port m_port;
+    lsl::stream_outlet *m_outlet;
+
+private:
+
+    void handler(  const boost::system::error_code& error, size_t bytes_transferred)
+    {
+        if (!error)
+        {  // read completed, so process the data
+            read_msg_[bytes_transferred]=0;
+#ifndef NDEBUG
+            std::cout << bytes_transferred << " bytes: " << read_msg_ << std::endl;
+#endif
+            // forward data to outlet
+            if (m_outlet!=nullptr && bytes_transferred) {
+                m_outlet->push_sample(read_msg_);
+            }
+
+            read_some(); // start waiting for another asynchronous read again
+        }
+        else
+            do_close(error);
+    }
+
+    void read_some()
+    {
+        m_port.async_read_some(boost::asio::buffer(read_msg_,512),
+                               boost::bind(&Serial::handler,  this,
+                               boost::asio::placeholders::error,
+                               boost::asio::placeholders::bytes_transferred)
+                               );
+    }
+
+    void do_close(const boost::system::error_code& error)
+    {
+#ifndef NDEBUG
+        if (error == boost::asio::error::operation_aborted)
+            return; // ignore it because the connection cancelled the timer
+        if (error)
+            std::cerr << "Error: " << error.message() << std::endl; // show the error message
+        else
+            std::cout << "Error: Connection did not succeed.\n";
+#endif
+        m_port.close();
+    }
+public:
+
+    void close() // call the do_close function via the io service in the other thread
+    {
+        m_io.post(boost::bind(&Serial::do_close, this, boost::system::error_code()));
+    }
+
+    Serial(const char *dev_name, unsigned int baud, lsl::stream_outlet *outlet) : m_io(),
+        m_port(m_io, dev_name), m_outlet(outlet)
+    {
+//        m_port.set_option( boost::asio::serial_port_base::parity() );	// default none
+//        m_port.set_option( boost::asio::serial_port_base::character_size( 8 ) );
+//        m_port.set_option( boost::asio::serial_port_base::stop_bits() );	// default one
+        m_port.set_option( boost::asio::serial_port_base::baud_rate( baud ) );
+
+        read_some();
+
+        // run the IO service as a separate thread, so the main thread can do others
+        boost::thread t(boost::bind(&boost::asio::io_service::run, &m_io));
+    }
+
+};
+
+
 MainWindow::MainWindow(QWidget *parent, const std::string &config_file) :
 QMainWindow(parent),
 ui(new Ui::MainWindow)
@@ -15,7 +98,8 @@ ui(new Ui::MainWindow)
 
 	// make GUI connections
 	QObject::connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-	QObject::connect(ui->linkButton, SIGNAL(clicked()), this, SLOT(on_link()));
+    QObject::connect(ui->linkButton, SIGNAL(clicked()), this, SLOT(on_link()));
+    QObject::connect(this, SIGNAL(error()), this, SLOT(on_link()));
 	QObject::connect(ui->actionLoad_Configuration, SIGNAL(triggered()), this, SLOT(load_config_dialog()));
 	QObject::connect(ui->actionSave_Configuration, SIGNAL(triggered()), this, SLOT(save_config_dialog()));
 }
@@ -34,7 +118,7 @@ void MainWindow::save_config_dialog() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *ev) {
-	if (reader_thread_)
+    if (reader_thread_)
 		ev->ignore();
 }
 
@@ -100,7 +184,8 @@ void MainWindow::save_config(const std::string &filename) {
 
 
 // start/stop the cognionics connection
-void MainWindow::on_link() {
+void MainWindow::on_link()
+{
 	if (reader_thread_) {
 		// === perform unlink action ===
 		try {
@@ -114,9 +199,9 @@ void MainWindow::on_link() {
 
 		// indicate that we are now successfully unlinked
 		ui->linkButton->setText("Link");
-	} else {
+    }
+    else {
 //		// === perform link action ===
-//		HANDLE hPort = NULL;
 
         try {
             // get the UI parameters...
@@ -132,43 +217,12 @@ void MainWindow::on_link() {
             int readTotalTimeoutConstant = ui->readTotalTimeoutConstant->value();
             int readTotalTimeoutMultiplier = ui->readTotalTimeoutMultiplier->value();
 
-            int hPort = 0;
-
-//			// try to open the serial port
-//			std::string fname = "\\\\.\\COM" + std::to_string(comPort);
-//			hPort = CreateFileA(fname.c_str(),GENERIC_READ|GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
-//			if (hPort == INVALID_HANDLE_VALUE)
-//				throw std::runtime_error("Could not open serial port. Please make sure that you are using the right COM port and that the device is ready.");
-
-//			// try to set up serial port parameters
-//			DCB dcbSerialParams = {0};
-//			if (!GetCommState(hPort, &dcbSerialParams))
-//				QMessageBox::critical(this,"Error","Could not get COM port state.",QMessageBox::Ok);
-//			dcbSerialParams.BaudRate=baudRate;
-//			dcbSerialParams.ByteSize=dataBits;
-//			dcbSerialParams.StopBits=stopBits;
-//			dcbSerialParams.Parity=parity;
-//			if(!SetCommState(hPort, &dcbSerialParams))
-//				QMessageBox::critical(this,"Error","Could not set baud rate.",QMessageBox::Ok);
-
-//			// try to set timeouts
-//			COMMTIMEOUTS timeouts = {0};
-//			if (!GetCommTimeouts(hPort,&timeouts))
-//				QMessageBox::critical(this,"Error","Could not get COM port timeouts.",QMessageBox::Ok);
-//			timeouts.ReadIntervalTimeout = readIntervalTimeout;
-//			timeouts.ReadTotalTimeoutConstant = readTotalTimeoutConstant;
-//			timeouts.ReadTotalTimeoutMultiplier = readTotalTimeoutMultiplier;
-//			if (!SetCommTimeouts(hPort,&timeouts))
-//				QMessageBox::critical(this,"Error","Could not set COM port timeouts.",QMessageBox::Ok);
-
             // start reading
             shutdown_ = false;
-            reader_thread_ = std::make_unique<std::thread>(&MainWindow::read_thread, this, hPort, comPort, baudRate, samplingRate, chunkSize, streamName);
+            reader_thread_ = std::make_unique<std::thread>(&MainWindow::read_thread, this, comPort, baudRate, samplingRate, chunkSize, streamName);
 
         }
         catch(std::exception &e) {
-//			if (hPort != INVALID_HANDLE_VALUE)
-//				CloseHandle(hPort);
             QMessageBox::critical(this,"Error",(std::string("Error during initialization: ")+=e.what()).c_str(),QMessageBox::Ok);
             return;
         }
@@ -180,7 +234,7 @@ void MainWindow::on_link() {
 
 
 // background data reader thread
-void MainWindow::read_thread(int hPort, int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName) {
+void MainWindow::read_thread(int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName) {
 //    void MainWindow::read_thread(HANDLE hPort, int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName) {
     try {
 
@@ -200,31 +254,28 @@ void MainWindow::read_thread(int hPort, int comPort, int baudRate, int samplingR
 		// make a new outlet
 		lsl::stream_outlet outlet(info,chunkSize);
 
-		// enter transmission loop
-		unsigned char byte;
-		short sample;
-        unsigned long bytes_read = 1;
+        // enter transmission loop
+        std::string portname = "/dev/ttyS" + std::to_string(comPort);
+        Serial receiver(portname.c_str(), (unsigned int) baudRate, &outlet);
+
 		while (!shutdown_) {
-			// get a sample
-//			ReadFile(hPort,&byte,1,&bytes_read,NULL);
 
-          /// TMP SIMULATE DATA
-            ///            sample = (short) (rand() * 255.f);
-            sample = sample + 1;
-            sample = sample > 30 ? 0: sample;
-            ///
-
-			// transmit it
-			if (bytes_read)
-				outlet.push_sample(&sample);
+//          /// TMP SIMULATE DATA
+//            ///            sample = (short) (rand() * 255.f);
+//          sample = sample + 1;
+//          sample = sample > 300 ? 0: sample;
+//			// transmit it
+//			outlet.push_sample(&sample);
 
             /// TMP simulate fps
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
 	catch(std::exception &e) {
 		// any other error
-		QMessageBox::critical(this,"Error",(std::string("Error during processing: ")+=e.what()).c_str(),QMessageBox::Ok);
+        QMessageBox::critical(this,"Error",(std::string("Error during : ")+=e.what()).c_str(),QMessageBox::Ok);
+        // indicate that we are now unlinked
+        emit error();
 	}
 
 //	CloseHandle(hPort);
