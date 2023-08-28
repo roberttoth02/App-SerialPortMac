@@ -115,61 +115,63 @@ void MainWindow::on_link() {
 		// indicate that we are now successfully unlinked
 		ui->linkButton->setText("Link");
 	} else {
-		// === perform link action ===
-		HANDLE hPort = NULL;
+//		// === perform link action ===
+//		HANDLE hPort = NULL;
 
-		try {
-			// get the UI parameters...
-			int comPort = ui->comPort->value();
-			int baudRate = ui->baudRate->value();
-			int samplingRate = ui->samplingRate->value();
-			int chunkSize = ui->chunkSize->value();
-			std::string streamName = ui->streamName->text().toStdString();
-			int dataBits = ui->dataBits->currentIndex()+4;
-			int parity = ui->parity->currentIndex();
-			int stopBits = ui->stopBits->currentIndex();
-			int readIntervalTimeout = ui->readIntervalTimeout->value();
-			int readTotalTimeoutConstant = ui->readTotalTimeoutConstant->value();
-			int readTotalTimeoutMultiplier = ui->readTotalTimeoutMultiplier->value();
+        try {
+            // get the UI parameters...
+            int comPort = ui->comPort->value();
+            int baudRate = ui->baudRate->value();
+            int samplingRate = ui->samplingRate->value();
+            int chunkSize = ui->chunkSize->value();
+            std::string streamName = ui->streamName->text().toStdString();
+            int dataBits = ui->dataBits->currentIndex()+4;
+            int parity = ui->parity->currentIndex();
+            int stopBits = ui->stopBits->currentIndex();
+            int readIntervalTimeout = ui->readIntervalTimeout->value();
+            int readTotalTimeoutConstant = ui->readTotalTimeoutConstant->value();
+            int readTotalTimeoutMultiplier = ui->readTotalTimeoutMultiplier->value();
 
-			// try to open the serial port
-			std::string fname = "\\\\.\\COM" + std::to_string(comPort);
-			hPort = CreateFileA(fname.c_str(),GENERIC_READ|GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
-			if (hPort == INVALID_HANDLE_VALUE)
-				throw std::runtime_error("Could not open serial port. Please make sure that you are using the right COM port and that the device is ready.");
+            int hPort = 0;
 
-			// try to set up serial port parameters
-			DCB dcbSerialParams = {0};
-			if (!GetCommState(hPort, &dcbSerialParams))
-				QMessageBox::critical(this,"Error","Could not get COM port state.",QMessageBox::Ok);
-			dcbSerialParams.BaudRate=baudRate;
-			dcbSerialParams.ByteSize=dataBits;
-			dcbSerialParams.StopBits=stopBits;
-			dcbSerialParams.Parity=parity;
-			if(!SetCommState(hPort, &dcbSerialParams))
-				QMessageBox::critical(this,"Error","Could not set baud rate.",QMessageBox::Ok);
+//			// try to open the serial port
+//			std::string fname = "\\\\.\\COM" + std::to_string(comPort);
+//			hPort = CreateFileA(fname.c_str(),GENERIC_READ|GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+//			if (hPort == INVALID_HANDLE_VALUE)
+//				throw std::runtime_error("Could not open serial port. Please make sure that you are using the right COM port and that the device is ready.");
 
-			// try to set timeouts
-			COMMTIMEOUTS timeouts = {0};
-			if (!GetCommTimeouts(hPort,&timeouts))
-				QMessageBox::critical(this,"Error","Could not get COM port timeouts.",QMessageBox::Ok);
-			timeouts.ReadIntervalTimeout = readIntervalTimeout;
-			timeouts.ReadTotalTimeoutConstant = readTotalTimeoutConstant;
-			timeouts.ReadTotalTimeoutMultiplier = readTotalTimeoutMultiplier;
-			if (!SetCommTimeouts(hPort,&timeouts))
-				QMessageBox::critical(this,"Error","Could not set COM port timeouts.",QMessageBox::Ok);
+//			// try to set up serial port parameters
+//			DCB dcbSerialParams = {0};
+//			if (!GetCommState(hPort, &dcbSerialParams))
+//				QMessageBox::critical(this,"Error","Could not get COM port state.",QMessageBox::Ok);
+//			dcbSerialParams.BaudRate=baudRate;
+//			dcbSerialParams.ByteSize=dataBits;
+//			dcbSerialParams.StopBits=stopBits;
+//			dcbSerialParams.Parity=parity;
+//			if(!SetCommState(hPort, &dcbSerialParams))
+//				QMessageBox::critical(this,"Error","Could not set baud rate.",QMessageBox::Ok);
 
-			// start reading
-			shutdown_ = false;
+//			// try to set timeouts
+//			COMMTIMEOUTS timeouts = {0};
+//			if (!GetCommTimeouts(hPort,&timeouts))
+//				QMessageBox::critical(this,"Error","Could not get COM port timeouts.",QMessageBox::Ok);
+//			timeouts.ReadIntervalTimeout = readIntervalTimeout;
+//			timeouts.ReadTotalTimeoutConstant = readTotalTimeoutConstant;
+//			timeouts.ReadTotalTimeoutMultiplier = readTotalTimeoutMultiplier;
+//			if (!SetCommTimeouts(hPort,&timeouts))
+//				QMessageBox::critical(this,"Error","Could not set COM port timeouts.",QMessageBox::Ok);
+
+            // start reading
+            shutdown_ = false;
             reader_thread_ = std::make_unique<std::thread>(&MainWindow::read_thread, this, hPort, comPort, baudRate, samplingRate, chunkSize, streamName);
 
-		}
-		catch(std::exception &e) {
-			if (hPort != INVALID_HANDLE_VALUE)
-				CloseHandle(hPort);
-			QMessageBox::critical(this,"Error",(std::string("Error during initialization: ")+=e.what()).c_str(),QMessageBox::Ok);
-			return;
-		}
+        }
+        catch(std::exception &e) {
+//			if (hPort != INVALID_HANDLE_VALUE)
+//				CloseHandle(hPort);
+            QMessageBox::critical(this,"Error",(std::string("Error during initialization: ")+=e.what()).c_str(),QMessageBox::Ok);
+            return;
+        }
 
 		// done, all successful
 		ui->linkButton->setText("Unlink");
@@ -178,8 +180,9 @@ void MainWindow::on_link() {
 
 
 // background data reader thread
-void MainWindow::read_thread(HANDLE hPort, int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName) {
-	try {
+void MainWindow::read_thread(int hPort, int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName) {
+//    void MainWindow::read_thread(HANDLE hPort, int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName) {
+    try {
 
 		// create streaminfo
 		lsl::stream_info info(streamName,"Raw",1,samplingRate,lsl::cf_int16,std::string("SerialPort_") + streamName);
@@ -191,8 +194,8 @@ void MainWindow::read_thread(HANDLE hPort, int comPort, int baudRate, int sampli
 			.append_child_value("unit","integer");
 		info.desc().append_child("acquisition")
 			.append_child("hardware")
-				.append_child_value("com_port", std::to_string(comPort))
-				.append_child_value("baud_rate",std::to_string(baudRate));
+            .append_child_value("com_port", std::to_string(comPort))
+            .append_child_value("baud_rate",std::to_string(baudRate));
 
 		// make a new outlet
 		lsl::stream_outlet outlet(info,chunkSize);
@@ -200,20 +203,31 @@ void MainWindow::read_thread(HANDLE hPort, int comPort, int baudRate, int sampli
 		// enter transmission loop
 		unsigned char byte;
 		short sample;
-		unsigned long bytes_read;
+        unsigned long bytes_read = 1;
 		while (!shutdown_) {
 			// get a sample
-			ReadFile(hPort,&byte,1,&bytes_read,NULL); sample = byte;
+//			ReadFile(hPort,&byte,1,&bytes_read,NULL);
+
+          /// TMP SIMULATE DATA
+            ///            sample = (short) (rand() * 255.f);
+            sample = sample + 1;
+            sample = sample > 30 ? 0: sample;
+            ///
+
 			// transmit it
 			if (bytes_read)
 				outlet.push_sample(&sample);
+
+            /// TMP simulate fps
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
 	}
 	catch(std::exception &e) {
 		// any other error
 		QMessageBox::critical(this,"Error",(std::string("Error during processing: ")+=e.what()).c_str(),QMessageBox::Ok);
 	}
-	CloseHandle(hPort);
+
+//	CloseHandle(hPort);
 }
 
 MainWindow::~MainWindow() {

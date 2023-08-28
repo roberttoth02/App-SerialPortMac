@@ -66,7 +66,7 @@ installLSLAuxFiles(${PROJECT_NAME}
 
 get_target_property(QT_QMAKE_EXECUTABLE Qt::qmake IMPORTED_LOCATION)
 get_filename_component(QT_WINDEPLOYQT_EXECUTABLE ${QT_QMAKE_EXECUTABLE} PATH)
-set(QT_WINDEPLOYQT_EXECUTABLE "${QT_WINDEPLOYQT_EXECUTABLE}/windeployqt.exe")
+#set(QT_WINDEPLOYQT_EXECUTABLE "${QT_WINDEPLOYQT_EXECUTABLE}/windeployqt.exe")
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
@@ -86,9 +86,9 @@ add_custom_command(
     ${CMAKE_CURRENT_SOURCE_DIR}//${PROJECT_NAME}.cfg
     $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
-if(Qt6_FOUND)
-    qt_finalize_executable(${PROJECT_NAME})
-endif(Qt6_FOUND)
+#if(Qt6_FOUND)
+#    qt_finalize_executable(${PROJECT_NAME})
+#endif(Qt6_FOUND)
 
 
 LSLGenerateCPackConfig()

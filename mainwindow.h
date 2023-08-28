@@ -14,8 +14,8 @@
 // LSL API
 #include <lsl_cpp.h>
 
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
+//#define WIN32_LEAN_AND_MEAN
+//#include "windows.h"
 
 namespace Ui {
 class MainWindow;
@@ -41,7 +41,7 @@ private slots:
     void closeEvent(QCloseEvent *ev);
 private:
     // background data reader thread
-	void read_thread(HANDLE hPort, int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName);
+    void read_thread(int hPort, int comPort, int baudRate, int samplingRate, int chunkSize, const std::string &streamName);
 
     // raw config file IO
     void load_config(const std::string &filename);
