@@ -1,13 +1,22 @@
 # Overview
 
-The program reads a byte stream from a given COM port and emits it as an LSL stream. This program does not currently support sending a startup sequence to the device or any other kind of 2-way handshake.
+The program reads a byte stream from a given Serial port and emits it as an LSL stream. 
+This program does not currently support sending a startup sequence to the device or any other kind of 2-way handshake.
 
 # Linux compilation
 
-    sudo apt install qt6-tools-dev libboost-thread-dev liblsl git cmake
+Prerequirements
+
+    sudo apt install build-essential qt6-tools-dev libboost-thread-dev git cmake
     
-    git clone https://github.com/brunoherbelin/App-SerialPortLinux.git
-    
+Download and install liblsl from https://github.com/sccn/liblsl 
+e.g. Download https://github.com/sccn/liblsl/releases/download/v1.16.2/liblsl-1.16.2-jammy_amd64.deb and run:
+
+    sudo apt install ./liblsl-1.16.2-jammy_amd64.deb
+
+Then, execute the following in a terminal
+
+    git clone https://github.com/brunoherbelin/App-SerialPortLinux.git    
     mkdir App-SerialPortLinux-build
     cd App-SerialPortLinux-build
     cmake -DCMAKE_BUILD_TYPE=Release ../App-SerialPortLinux
@@ -17,7 +26,7 @@ The program reads a byte stream from a given COM port and emits it as an LSL str
 # Usage
   * Start the SerialPort app. 
   
-    ./App-SerialPortLinux
+    ./SerialPortLSL
 
   * Make sure that your device is plugged in and that you know its COM port (you can usually check this in the Device Manager).
 
