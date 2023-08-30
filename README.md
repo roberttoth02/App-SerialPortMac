@@ -22,6 +22,12 @@ Then, execute the following in a terminal
     cmake -DCMAKE_BUILD_TYPE=Release ../App-SerialPortLinux
     cmake --build .
 
+NB: On Ubuntu, this is required to authorize access of user to /dev/ttyS devices
+
+    sudo usermod -a -G tty $USER
+    sudo usermod -a -G dialout $USER
+
+
 
 # Usage
   * Start the SerialPort app. 

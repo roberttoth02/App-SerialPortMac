@@ -34,7 +34,7 @@ private:
             // forward data to outlet
             if (m_outlet!=nullptr && bytes_transferred) {
                 m_outlet->push_sample(read_msg_);
-            }
+            }       
 
             read_some(); // start waiting for another asynchronous read again
         }
@@ -73,9 +73,9 @@ public:
     Serial(const char *dev_name, unsigned int baud, unsigned int dataBits,  lsl::stream_outlet *outlet) : m_io(),
         m_port(m_io, dev_name), m_outlet(outlet)
     {
-//        m_port.set_option( boost::asio::serial_port_base::parity() );	// default none
+        m_port.set_option( boost::asio::serial_port_base::parity() );	// default none
         m_port.set_option( boost::asio::serial_port_base::character_size( dataBits ) );
-//        m_port.set_option( boost::asio::serial_port_base::stop_bits() );	// default one
+        m_port.set_option( boost::asio::serial_port_base::stop_bits() );	// default one
         m_port.set_option( boost::asio::serial_port_base::baud_rate( baud ) );
 
         read_some();
@@ -199,6 +199,7 @@ void MainWindow::on_link()
 
 		// indicate that we are now successfully unlinked
 		ui->linkButton->setText("Link");
+        ui->linkButton->setStyleSheet("background-color: rgb(26, 90, 28);");
     }
     else {
 //		// === perform link action ===
@@ -230,6 +231,7 @@ void MainWindow::on_link()
 
 		// done, all successful
 		ui->linkButton->setText("Unlink");
+        ui->linkButton->setStyleSheet("background-color: rgb(90, 26,28);");
 	}
 }
 
@@ -259,14 +261,16 @@ void MainWindow::read_thread(const std::string &comPort, unsigned int baudRate, 
         // enter transmission loop
         Serial receiver(comPort.c_str(), baudRate, dataBits, &outlet);
 
+        int32_t sample = 0;
+
 		while (!shutdown_) {
 
 //          /// TMP SIMULATE DATA
 //            ///            sample = (short) (rand() * 255.f);
 //          sample = sample + 1;
-//          sample = sample > 300 ? 0: sample;
-//			// transmit it
-//			outlet.push_sample(&sample);
+//          sample = sample > 30 ? 0: sample;
+//            // transmit it
+//            outlet.push_sample(&sample);
 
             /// TMP simulate fps
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
