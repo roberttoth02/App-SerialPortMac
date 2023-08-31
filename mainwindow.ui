@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>474</width>
-    <height>389</height>
+    <width>718</width>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,6 +66,32 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="datamode">
+           <item>
+            <property name="text">
+             <string>Passthrough</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Read Integer number</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Read Floating point number</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Action</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -90,11 +116,17 @@
            <property name="toolTip">
             <string>Set this to a non-zero value if you know the sampling rate.</string>
            </property>
+           <property name="specialValueText">
+            <string>Irregular</string>
+           </property>
            <property name="minimum">
             <number>0</number>
            </property>
            <property name="maximum">
             <number>1000</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
            </property>
            <property name="value">
             <number>0</number>
@@ -209,7 +241,7 @@
          <item row="1" column="1">
           <widget class="QComboBox" name="parity">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Parity checking scheme.</string>
@@ -232,16 +264,6 @@
              <string>Even</string>
             </property>
            </item>
-           <item>
-            <property name="text">
-             <string>Mark</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Space</string>
-            </property>
-           </item>
           </widget>
          </item>
          <item row="2" column="0">
@@ -254,7 +276,7 @@
          <item row="2" column="1">
           <widget class="QComboBox" name="stopBits">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Number of stop bits.</string>
@@ -281,6 +303,9 @@
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox_4">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="toolTip">
          <string>The timeout settings are largely irrelevant in this simple context but are exposed for completeness.</string>
         </property>
@@ -418,8 +443,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>474</width>
-     <height>23</height>
+     <width>718</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

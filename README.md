@@ -9,12 +9,12 @@ Prerequirements
 
     sudo apt install build-essential qt6-tools-dev libboost-thread-dev git cmake
     
-Download and install liblsl from https://github.com/sccn/liblsl 
-e.g. Download https://github.com/sccn/liblsl/releases/download/v1.16.2/liblsl-1.16.2-jammy_amd64.deb and run:
+Install liblsl from https://github.com/sccn/liblsl.
+e.g. Under Ubuntu Jammy 22.04, download [this package](https://github.com/sccn/liblsl/releases/download/v1.16.2/liblsl-1.16.2-jammy_amd64.deb) and run:
 
     sudo apt install ./liblsl-1.16.2-jammy_amd64.deb
 
-Then, execute the following in a terminal
+Then, execute the following commands in a terminal;
 
     git clone https://github.com/brunoherbelin/App-SerialPortLinux.git    
     mkdir App-SerialPortLinux-build
@@ -22,7 +22,7 @@ Then, execute the following in a terminal
     cmake -DCMAKE_BUILD_TYPE=Release ../App-SerialPortLinux
     cmake --build .
 
-NB: On Ubuntu, this is required to authorize access of user to /dev/ttyS devices
+NB: On Ubuntu, it might be required to authorize access of user to /dev/ttyS devices :
 
     sudo usermod -a -G tty $USER
     sudo usermod -a -G dialout $USER
@@ -33,10 +33,13 @@ NB: On Ubuntu, this is required to authorize access of user to /dev/ttyS devices
   * Start the SerialPort app. 
   
     ./SerialPortLSL
+    
 
-  * Make sure that your device is plugged in and that you know its COM port (you can usually check this in the Device Manager).
-
-  * Select the COM port and the BAUD rate (data rate). If you know the nominal sampling rate of your stream (in bytes per second), you can set this in the Stream Sampling Rate (0 means irregular/unknown).
+  * Make sure that your device is plugged in and that you know its /dev/tty entry 
+  
+  * Enter the /dev port and the BAUD rate (data rate). If you know the nominal sampling rate of your stream (in bytes per second), you can set this in the Stream Sampling Rate (0 means irregular/unknown).
+  
+  * Specify the data mode: "Pathtrough" will forward anything read on serial to LSL and blindly convert to integer. "Read integer number" will try to convert the raw stream from serial port to an integer value. Same can be done for floating point values.
 
   * The output data will be batched into chunks of the given Chunk Size -- you can reduce or increase this setting according to your application's needs. The remaining settings can often be left untouched, except for devices with special requirements.
 

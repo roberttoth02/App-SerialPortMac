@@ -45,10 +45,11 @@ signals:
 
 private:
     // background data reader thread
-    void read_thread(const std::string &comPort, unsigned int baudRate, unsigned int dataBits,
+    void read_thread(const std::string &comPort, unsigned int baudRate, unsigned int dataBits, int parity, int stopbits, int readmode,
                      int samplingRate, int chunkSize, const std::string &streamName);
 
     // raw config file IO
+    std::string _filename;
     void load_config(const std::string &filename);
     void save_config(const std::string &filename);
 
