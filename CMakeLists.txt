@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(SerialPortLSL
-    DESCRIPTION "Read byte stream from COM port and emit as an LSL stream"
-    HOMEPAGE_URL "https://github.com/labstreaminglayer/App-SerialPort/"
+    DESCRIPTION "Read byte stream from Serial port and emit as an LSL stream"
+    HOMEPAGE_URL "https://github.com/brunoherbelin/App-SerialPortLinux/"
     LANGUAGES CXX
-    VERSION 1.1.0
+    VERSION 1.2.0
 )
 
 set(CMAKE_CXX_STANDARD 17)
@@ -81,15 +81,15 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     $<TARGET_FILE:LSL::lsl>
     $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
-#add_custom_command(
-#    TARGET ${PROJECT_NAME} POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy
-#    ${CMAKE_CURRENT_SOURCE_DIR}//${PROJECT_NAME}.cfg
-#    $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}//${PROJECT_NAME}.cfg
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
-#if(Qt6_FOUND)
-#    qt_finalize_executable(${PROJECT_NAME})
-#endif(Qt6_FOUND)
+if(Qt6_FOUND)
+    qt_finalize_executable(${PROJECT_NAME})
+endif(Qt6_FOUND)
 
 
 LSLGenerateCPackConfig()
