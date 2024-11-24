@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>718</width>
-    <height>433</height>
+    <width>692</width>
+    <height>434</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,16 +19,13 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
        <widget class="QGroupBox" name="groupBox">
         <property name="title">
          <string>Core Port Settings</string>
         </property>
-        <layout class="QFormLayout" name="formLayout">
-         <property name="fieldGrowthPolicy">
-          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-         </property>
+        <layout class="QGridLayout" name="gridLayout_4">
          <item row="0" column="0">
           <widget class="QLabel" name="label_4">
            <property name="text">
@@ -38,6 +35,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QLineEdit" name="comPort">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
             <string>Linux Device. e.g. /dev/ttyS0</string>
            </property>
@@ -66,8 +69,21 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Action</string>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="1">
           <widget class="QComboBox" name="datamode">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <item>
             <property name="text">
              <string>Passthrough</string>
@@ -85,33 +101,40 @@
            </item>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Action</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
-      <item>
+      <item row="0" column="1">
        <widget class="QGroupBox" name="groupBox_2">
         <property name="title">
          <string>Stream Settings</string>
         </property>
-        <layout class="QFormLayout" name="formLayout_2">
-         <property name="fieldGrowthPolicy">
-          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-         </property>
+        <layout class="QGridLayout" name="gridLayout_3">
          <item row="0" column="0">
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Stream Sampling Rate</string>
+            <string>Stream Name</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
+          <widget class="QLineEdit" name="streamName">
+           <property name="toolTip">
+            <string>The name of the stream within LSL.</string>
+           </property>
+           <property name="text">
+            <string>SerialPort</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Sampling Rate</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
           <widget class="QSpinBox" name="samplingRate">
            <property name="toolTip">
             <string>Set this to a non-zero value if you know the sampling rate.</string>
@@ -130,23 +153,6 @@
            </property>
            <property name="value">
             <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Stream Name</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="streamName">
-           <property name="toolTip">
-            <string>The name of the stream within LSL.</string>
-           </property>
-           <property name="text">
-            <string>SerialPort</string>
            </property>
           </widget>
          </item>
@@ -179,13 +185,13 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="0" column="0">
        <widget class="QGroupBox" name="groupBox_3">
         <property name="title">
          <string>Misc Port Settings</string>
         </property>
-        <layout class="QFormLayout" name="formLayout_3">
+        <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
@@ -195,6 +201,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QComboBox" name="dataBits">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
             <string>Number of data bits per byte</string>
            </property>
@@ -243,6 +255,12 @@
            <property name="enabled">
             <bool>true</bool>
            </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
             <string>Parity checking scheme.</string>
            </property>
@@ -278,17 +296,18 @@
            <property name="enabled">
             <bool>true</bool>
            </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
             <string>Number of stop bits.</string>
            </property>
            <item>
             <property name="text">
              <string>1</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>1.5</string>
             </property>
            </item>
            <item>
@@ -301,10 +320,10 @@
         </layout>
        </widget>
       </item>
-      <item>
+      <item row="0" column="1">
        <widget class="QGroupBox" name="groupBox_4">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>The timeout settings are largely irrelevant in this simple context but are exposed for completeness.</string>
@@ -312,7 +331,7 @@
         <property name="title">
          <string>Misc Timeout Settings (ms)</string>
         </property>
-        <layout class="QFormLayout" name="formLayout_4">
+        <layout class="QGridLayout" name="gridLayout_2">
          <item row="0" column="0">
           <widget class="QLabel" name="label_10">
            <property name="text">
@@ -323,7 +342,7 @@
          <item row="0" column="1">
           <widget class="QSpinBox" name="readIntervalTimeout">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Maximum time that may pass between two bytes </string>
@@ -349,7 +368,7 @@
          <item row="1" column="1">
           <widget class="QSpinBox" name="readTotalTimeoutConstant">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Constant term in length-dependent timeout.</string>
@@ -372,13 +391,13 @@
          <item row="2" column="1">
           <widget class="QSpinBox" name="readTotalTimeoutMultiplier">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="toolTip">
             <string>Linear term in length-dependent timeout.</string>
            </property>
            <property name="maximum">
-            <number>1000000</number>
+            <number>10000000</number>
            </property>
            <property name="value">
             <number>10</number>
@@ -406,6 +425,19 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -427,7 +459,7 @@
          </sizepolicy>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(26, 90, 28);</string>
+         <string notr="true">background-color: rgb(94, 186, 125);</string>
         </property>
         <property name="text">
          <string>Link</string>
@@ -443,8 +475,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>718</width>
-     <height>26</height>
+     <width>692</width>
+     <height>37</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

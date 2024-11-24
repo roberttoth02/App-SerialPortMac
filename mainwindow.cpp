@@ -143,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent, const std::string &config_file) :
     // Setup macOS-specific menu handling
     QMenu *appMenu = menuBar()->addMenu(tr("Application"));
     QAction *quitAction = appMenu->addAction(tr("Quit"));
-    quitAction->setShortcut(QKeySequence::Quit); // Ensures CMD+Q is recognized
+    quitAction->setShortcut(QKeySequence::Quit); 
     QObject::connect(quitAction, &QAction::triggered, QCoreApplication::quit);
 
     // Make GUI connections
@@ -264,7 +264,7 @@ void MainWindow::on_link()
 
         // indicate that we are now successfully unlinked
         ui->linkButton->setText("Link");
-        ui->linkButton->setStyleSheet("background-color: rgb(26, 90, 28);");
+        ui->linkButton->setStyleSheet("background-color: rgb(94, 186, 125);");
     }
     else {
 //      // === perform link action ===
@@ -298,7 +298,7 @@ void MainWindow::on_link()
 
         // done, all successful
         ui->linkButton->setText("Unlink");
-        ui->linkButton->setStyleSheet("background-color: rgb(90, 26,28);");
+        ui->linkButton->setStyleSheet("background-color: rgb(185, 49, 53);");
     }
 }
 
