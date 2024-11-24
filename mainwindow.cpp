@@ -132,111 +132,117 @@ private:
 
 
 MainWindow::MainWindow(QWidget *parent, const std::string &config_file) :
-QMainWindow(parent),
-ui(new Ui::MainWindow)
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
-	ui->setupUi(this);
+    ui->setupUi(this);
 
-	// parse startup config file
-	load_config(config_file);
+    // Parse startup config file
+    load_config(config_file);
 
-	// make GUI connections
-	QObject::connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-    QObject::connect(ui->linkButton, SIGNAL(clicked()), this, SLOT(on_link()));
-    QObject::connect(this, SIGNAL(error()), this, SLOT(on_link()));
-	QObject::connect(ui->actionLoad_Configuration, SIGNAL(triggered()), this, SLOT(load_config_dialog()));
-	QObject::connect(ui->actionSave_Configuration, SIGNAL(triggered()), this, SLOT(save_config_dialog()));
+    // Setup macOS-specific menu handling
+    QMenu *appMenu = menuBar()->addMenu(tr("Application"));
+    QAction *quitAction = appMenu->addAction(tr("Quit"));
+    quitAction->setShortcut(QKeySequence::Quit); // Ensures CMD+Q is recognized
+    QObject::connect(quitAction, &QAction::triggered, QCoreApplication::quit);
+
+    // Make GUI connections
+    QObject::connect(ui->actionQuit, &QAction::triggered, QCoreApplication::quit);
+    QObject::connect(ui->linkButton, &QPushButton::clicked, this, &MainWindow::on_link);
+    QObject::connect(this, &MainWindow::error, this, &MainWindow::on_link);
+    QObject::connect(ui->actionLoad_Configuration, &QAction::triggered, this, &MainWindow::load_config_dialog);
+    QObject::connect(ui->actionSave_Configuration, &QAction::triggered, this, &MainWindow::save_config_dialog);
 }
 
 
 void MainWindow::load_config_dialog() {
-	QString sel = QFileDialog::getOpenFileName(this,"Load Configuration File","","Configuration Files (*.cfg)");
-	if (!sel.isEmpty())
-		load_config(sel.toStdString());
+    QString sel = QFileDialog::getOpenFileName(this,"Load Configuration File","","Configuration Files (*.cfg)");
+    if (!sel.isEmpty())
+        load_config(sel.toStdString());
 }
 
 void MainWindow::save_config_dialog() {
-	QString sel = QFileDialog::getSaveFileName(this,"Save Configuration File","","Configuration Files (*.cfg)");
-	if (!sel.isEmpty())
-		save_config(sel.toStdString());
+    QString sel = QFileDialog::getSaveFileName(this,"Save Configuration File","","Configuration Files (*.cfg)");
+    if (!sel.isEmpty())
+        save_config(sel.toStdString());
 }
 
 void MainWindow::closeEvent(QCloseEvent *ev) {
     if (reader_thread_)
-		ev->ignore();
+        ev->ignore();
     save_config(_filename);
 }
 
 void MainWindow::load_config(const std::string &filename) {
-	using boost::property_tree::ptree;
-	ptree pt;
+    using boost::property_tree::ptree;
+    ptree pt;
 
     if (filename.empty()) {
         return;
     }
 
-	// parse file
-	try {
-		read_xml(filename, pt);
-	} catch(std::exception &e) {
-		QMessageBox::information(this,"Error",(std::string("Cannot read config file: ")+= e.what()).c_str(),QMessageBox::Ok);
-		return;
-	}
+    // parse file
+    try {
+        read_xml(filename, pt);
+    } catch(std::exception &e) {
+        QMessageBox::information(this,"Error",(std::string("Cannot read config file: ")+= e.what()).c_str(),QMessageBox::Ok);
+        return;
+    }
 
-	// get config values
-	try {
+    // get config values
+    try {
         ui->comPort->setText(pt.get<std::string>("coresettings.comport","/dev/ttyS0").c_str());
         ui->baudRate->setValue(pt.get<int>("coresettings.baudrate",9600));
         ui->datamode->setCurrentIndex(pt.get<int>("coresettings.datamode",0));
-		ui->samplingRate->setValue(pt.get<int>("streamsettings.samplingrate",0));
-		ui->chunkSize->setValue(pt.get<int>("streamsettings.chunksize",32));
-		ui->streamName->setText(pt.get<std::string>("streamsettings.streamname","SerialPort").c_str());
-		ui->dataBits->setCurrentIndex(pt.get<int>("miscsettings.databits",4));
-		ui->parity->setCurrentIndex(pt.get<int>("miscsettings.parity",0));
-		ui->stopBits->setCurrentIndex(pt.get<int>("miscsettings.stopbits",0));
-		ui->readIntervalTimeout->setValue(pt.get<int>("timeoutsettings.readintervaltimeout",500));
-		ui->readTotalTimeoutConstant->setValue(pt.get<int>("timeoutsettings.readtotaltimeoutconstant",50));
-		ui->readTotalTimeoutMultiplier->setValue(pt.get<int>("timeoutsettings.readtotaltimeoutmultiplier",10));
-	} catch(std::exception &) {
-		QMessageBox::information(this,"Error in Config File","Could not read out config parameters.",QMessageBox::Ok);
-		return;
-	}
+        ui->samplingRate->setValue(pt.get<int>("streamsettings.samplingrate",0));
+        ui->chunkSize->setValue(pt.get<int>("streamsettings.chunksize",32));
+        ui->streamName->setText(pt.get<std::string>("streamsettings.streamname","SerialPort").c_str());
+        ui->dataBits->setCurrentIndex(pt.get<int>("miscsettings.databits",4));
+        ui->parity->setCurrentIndex(pt.get<int>("miscsettings.parity",0));
+        ui->stopBits->setCurrentIndex(pt.get<int>("miscsettings.stopbits",0));
+        ui->readIntervalTimeout->setValue(pt.get<int>("timeoutsettings.readintervaltimeout",500));
+        ui->readTotalTimeoutConstant->setValue(pt.get<int>("timeoutsettings.readtotaltimeoutconstant",50));
+        ui->readTotalTimeoutMultiplier->setValue(pt.get<int>("timeoutsettings.readtotaltimeoutmultiplier",10));
+    } catch(std::exception &) {
+        QMessageBox::information(this,"Error in Config File","Could not read out config parameters.",QMessageBox::Ok);
+        return;
+    }
 
     _filename = filename;
 }
 
 void MainWindow::save_config(const std::string &filename) {
-	using boost::property_tree::ptree;
-	ptree pt;
+    using boost::property_tree::ptree;
+    ptree pt;
 
     if (filename.empty()) {
         return;
     }
 
-	// transfer UI content into property tree
-	try {
+    // transfer UI content into property tree
+    try {
         pt.put("coresettings.comport",ui->comPort->text().toStdString());
         pt.put("coresettings.baudrate",ui->baudRate->value());
         pt.put("coresettings.datamode",ui->datamode->currentIndex());
-		pt.put("streamsettings.samplingrate",ui->samplingRate->value());
-		pt.put("streamsettings.chunksize",ui->chunkSize->value());
-		pt.put("streamsettings.streamname",ui->streamName->text().toStdString());
-		pt.put("miscsettings.databits",ui->dataBits->currentIndex());
-		pt.put("miscsettings.parity",ui->parity->currentIndex());
-		pt.put("miscsettings.stopbits",ui->stopBits->currentIndex());
-		pt.put("timeoutsettings.readintervaltimeout",ui->readIntervalTimeout->value());
-		pt.put("timeoutsettings.readtotaltimeoutconstant",ui->readTotalTimeoutConstant->value());
-		pt.put("timeoutsettings.readtotaltimeoutmultiplier",ui->readTotalTimeoutMultiplier->value());
-	} catch(std::exception &e) {
-		QMessageBox::critical(this,"Error",(std::string("Could not prepare settings for saving: ")+=e.what()).c_str(),QMessageBox::Ok);
-	}
+        pt.put("streamsettings.samplingrate",ui->samplingRate->value());
+        pt.put("streamsettings.chunksize",ui->chunkSize->value());
+        pt.put("streamsettings.streamname",ui->streamName->text().toStdString());
+        pt.put("miscsettings.databits",ui->dataBits->currentIndex());
+        pt.put("miscsettings.parity",ui->parity->currentIndex());
+        pt.put("miscsettings.stopbits",ui->stopBits->currentIndex());
+        pt.put("timeoutsettings.readintervaltimeout",ui->readIntervalTimeout->value());
+        pt.put("timeoutsettings.readtotaltimeoutconstant",ui->readTotalTimeoutConstant->value());
+        pt.put("timeoutsettings.readtotaltimeoutmultiplier",ui->readTotalTimeoutMultiplier->value());
+    } catch(std::exception &e) {
+        QMessageBox::critical(this,"Error",(std::string("Could not prepare settings for saving: ")+=e.what()).c_str(),QMessageBox::Ok);
+    }
 
-	// write to disk
-	try {
-		write_xml(filename, pt);
-	} catch(std::exception &e) {
-		QMessageBox::critical(this,"Error",(std::string("Could not write to config file: ")+=e.what()).c_str(),QMessageBox::Ok);
-	}
+    // write to disk
+    try {
+        write_xml(filename, pt);
+    } catch(std::exception &e) {
+        QMessageBox::critical(this,"Error",(std::string("Could not write to config file: ")+=e.what()).c_str(),QMessageBox::Ok);
+    }
 
     _filename = filename;
 }
@@ -245,23 +251,23 @@ void MainWindow::save_config(const std::string &filename) {
 // start/stop the cognionics connection
 void MainWindow::on_link()
 {
-	if (reader_thread_) {
-		// === perform unlink action ===
-		try {
-			shutdown_ = true;
-			reader_thread_->join();
-			reader_thread_.reset();
-		} catch(std::exception &e) {
-			QMessageBox::critical(this,"Error",(std::string("Could not stop the background processing: ")+=e.what()).c_str(),QMessageBox::Ok);
-			return;
-		}
+    if (reader_thread_) {
+        // === perform unlink action ===
+        try {
+            shutdown_ = true;
+            reader_thread_->join();
+            reader_thread_.reset();
+        } catch(std::exception &e) {
+            QMessageBox::critical(this,"Error",(std::string("Could not stop the background processing: ")+=e.what()).c_str(),QMessageBox::Ok);
+            return;
+        }
 
-		// indicate that we are now successfully unlinked
-		ui->linkButton->setText("Link");
+        // indicate that we are now successfully unlinked
+        ui->linkButton->setText("Link");
         ui->linkButton->setStyleSheet("background-color: rgb(26, 90, 28);");
     }
     else {
-//		// === perform link action ===
+//      // === perform link action ===
 
         try {
             // get the UI parameters...
@@ -290,10 +296,10 @@ void MainWindow::on_link()
             return;
         }
 
-		// done, all successful
-		ui->linkButton->setText("Unlink");
+        // done, all successful
+        ui->linkButton->setText("Unlink");
         ui->linkButton->setStyleSheet("background-color: rgb(90, 26,28);");
-	}
+    }
 }
 
 
@@ -309,42 +315,42 @@ void MainWindow::read_thread(const std::string &comPort, unsigned int baudRate, 
         else if (readmode == Serial::READ_INTEGER)
             format = lsl::cf_int32;
 
-		// create streaminfo
+        // create streaminfo
         lsl::stream_info info(streamName,"Raw", 1, samplingRate, format, std::string("SerialPort_") + streamName);
 
-		// append some meta-data
+        // append some meta-data
         lsl::xml_element channels = info.desc().append_child("channels");
         channels.append_child("channel")
                 .append_child_value("label","Channel1")
                 .append_child_value("type","Raw")
                 .append_child_value("unit", (readmode == Serial::READ_FLOATINGPOINT) ? "float" : "integer");
-		info.desc().append_child("acquisition")
-			.append_child("hardware")
+        info.desc().append_child("acquisition")
+            .append_child("hardware")
             .append_child_value("com_port", comPort)
             .append_child_value("baud_rate",std::to_string(baudRate));
 
-		// make a new outlet
+        // make a new outlet
         lsl::stream_outlet outlet(info, chunkSize);
 
         // Creates a Serial port receiver : this enters transmission loop to outlet
         Serial receiver(comPort.c_str(), baudRate, dataBits, parity, stopbits, (Serial::TransferMode) readmode, &outlet);
 
         // keep serial alive until shutdown
-		while (!shutdown_) {
+        while (!shutdown_) {
 
             /// TMP simulate fps
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
-	}
-	catch(std::exception &e) {
-		// any other error
+        }
+    }
+    catch(std::exception &e) {
+        // any other error
         QMessageBox::critical(nullptr,"Error",(std::string("Error during operation : ")+=e.what()).c_str(),QMessageBox::Ok);
         // indicate that we are now unlinked
         emit error();
-	}
+    }
 
 }
 
 MainWindow::~MainWindow() {
-	delete ui;
+    delete ui;
 }

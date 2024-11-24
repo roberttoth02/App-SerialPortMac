@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.12)
 
 project(SerialPortLSL
     DESCRIPTION "Read byte stream from Serial port and emit as an LSL stream"
-    HOMEPAGE_URL "https://github.com/brunoherbelin/App-SerialPortLinux/"
+    HOMEPAGE_URL "https://github.com/roberttoth02/App-SerialPortMac/"
     LANGUAGES CXX
-    VERSION 1.2.0
+    VERSION 1.0.0
 )
 
 set(CMAKE_CXX_STANDARD 17)
@@ -36,10 +36,15 @@ find_package(Boost REQUIRED COMPONENTS thread)
 ## Threads
 find_package(Threads REQUIRED)
 
+## Mac
+set(MACOSX_BUNDLE TRUE) 
+set(MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}")
+set(MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/Info.plist)
+set(MACOSX_BUNDLE_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.app")
+set(ICON_DESTINATION "${MACOSX_BUNDLE_DIR}/Contents/Resources/")
+add_executable(${PROJECT_NAME} MACOSX_BUNDLE)
 
 # Targets
-
-add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE
     main.cpp
@@ -66,15 +71,6 @@ installLSLAuxFiles(${PROJECT_NAME}
 )
 
 get_target_property(QT_QMAKE_EXECUTABLE Qt::qmake IMPORTED_LOCATION)
-#get_filename_component(QT_WINDEPLOYQT_EXECUTABLE ${QT_QMAKE_EXECUTABLE} PATH)
-#set(QT_WINDEPLOYQT_EXECUTABLE "${QT_WINDEPLOYQT_EXECUTABLE}/windeployqt.exe")
-
-#add_custom_command(
-#    TARGET ${PROJECT_NAME} POST_BUILD
-#    COMMAND ${QT_WINDEPLOYQT_EXECUTABLE}
-#    --no-translations --no-system-d3d-compiler
-#    --qmldir ${CMAKE_CURRENT_SOURCE_DIR}
-#    $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -87,9 +83,17 @@ add_custom_command(
     ${CMAKE_CURRENT_SOURCE_DIR}//${PROJECT_NAME}.cfg
     $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+    ${ICON_DESTINATION}
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}//icon.icns
+    ${ICON_DESTINATION})
+
 if(Qt6_FOUND)
     qt_finalize_executable(${PROJECT_NAME})
 endif(Qt6_FOUND)
 
-
+# Packaging Info
 LSLGenerateCPackConfig()
