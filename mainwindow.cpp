@@ -27,7 +27,7 @@ public:
            TransferMode mode, lsl::stream_outlet *outlet) : m_io(),  m_port(m_io, dev_name), m_mode(mode), m_outlet(outlet)
     {
 #ifndef NDEBUG
-        std::cerr << " Openned Serial: " << dev_name << std::endl;
+        std::cerr << " Opened Serial: " << dev_name << std::endl;
 #endif
         // transfer options to m_port
         m_port.set_option( boost::asio::serial_port_base::baud_rate( baud ) );
@@ -118,9 +118,9 @@ private:
 
     void do_close(const boost::system::error_code& error)
     {
-#ifndef NDEBUG
         if (error == boost::asio::error::operation_aborted)
             return; // ignore it because the connection cancelled the timer
+#ifndef NDEBUG
         if (error)
             std::cerr << "Error: " << error.message() << std::endl; // show the error message
         else
@@ -258,7 +258,7 @@ void MainWindow::on_link()
             reader_thread_->join();
             reader_thread_.reset();
         } catch(std::exception &e) {
-            QMessageBox::critical(this,"Error",(std::string("Could not stop the background processing: ")+=e.what()).c_str(),QMessageBox::Ok);
+            //QMessageBox::critical(this,"Error",(std::string("Could not stop the background processing: ")+=e.what()).c_str(),QMessageBox::Ok); //@
             return;
         }
 
@@ -267,8 +267,7 @@ void MainWindow::on_link()
         ui->linkButton->setStyleSheet("background-color: rgb(94, 186, 125);");
     }
     else {
-//      // === perform link action ===
-
+        // === perform link action ===
         try {
             // get the UI parameters...
             std::string  comPort = ui->comPort->text().toStdString();
@@ -289,10 +288,9 @@ void MainWindow::on_link()
             reader_thread_ = std::make_unique<std::thread>(&MainWindow::read_thread, this, comPort,
                                                            baudRate, dataBits,  parity, stopBits, readmode,
                                                            samplingRate, chunkSize, streamName);
-
         }
         catch(std::exception &e) {
-            QMessageBox::critical(this,"Error",(std::string("Error during initialization: ")+=e.what()).c_str(),QMessageBox::Ok);
+            //QMessageBox::critical(this,"Error",(std::string("Error during initialization: ")+=e.what()).c_str(),QMessageBox::Ok); //@
             return;
         }
 
@@ -344,9 +342,9 @@ void MainWindow::read_thread(const std::string &comPort, unsigned int baudRate, 
     }
     catch(std::exception &e) {
         // any other error
-        QMessageBox::critical(nullptr,"Error",(std::string("Error during operation : ")+=e.what()).c_str(),QMessageBox::Ok);
+        //QMessageBox::critical(nullptr,"Error",(std::string("Error during operation : ")+=e.what()).c_str(),QMessageBox::Ok); //@
         // indicate that we are now unlinked
-        emit error();
+        //emit error(); //@
     }
 
 }
