@@ -41,7 +41,10 @@ You may move newly created application to a location of your choice, e.g.
 
 
 # Usage
-  * Start the SerialPort app. 
+  * Start the SerialPort app. You should see a window like the following.
+  <p align="center">
+    <img src="serialport.png" alt="Description" width="65%">
+  </p>
   
   * Make sure that your device is plugged in and that you know its /dev/tty entry. You may find this by running the following command in a terminal, before and after plugging in the serial device:<br />
     `/dev/tty.*`
