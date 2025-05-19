@@ -39,12 +39,12 @@ public:
         read_some();
 
         // run the IO service as a separate thread, so the main thread can do others
-        boost::thread t(boost::bind(&boost::asio::io_service::run, &m_io));
+        boost::thread t(boost::bind(&boost::asio::io_context::run, &m_io));
     }
 
     void close() // call the do_close function via the io service in the other thread
     {
-        m_io.post(boost::bind(&Serial::do_close, this, boost::system::error_code()));
+        boost::asio::post(m_io.get_executor(), boost::bind(&Serial::do_close, this, boost::system::error_code()));
     }
 
 
@@ -52,7 +52,7 @@ private:
 
     char read_msg_[512];
 
-    boost::asio::io_service m_io;
+    boost::asio::io_context m_io;
     boost::asio::serial_port m_port;
     TransferMode m_mode;
     lsl::stream_outlet *m_outlet;
